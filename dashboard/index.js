@@ -197,6 +197,34 @@ module.exports = (client) => {
         res.redirect('/afk');
     });
 
+    // --- COMMANDS Routes ---
+    app.get('/commands', (req, res) => {
+        if (!client.user) return res.send('Bot loading...');
+        res.render('commands', {
+            user: client.user,
+            page: 'commands'
+        });
+    });
+
+    app.get('/commands/rpc', (req, res) => {
+        res.render('cmd_rpc', { user: client.user, page: 'commands' });
+    });
+    app.get('/commands/reaction', (req, res) => {
+        res.render('cmd_reaction', { user: client.user, page: 'commands' });
+    });
+    app.get('/commands/mirror', (req, res) => {
+        res.render('cmd_mirror', { user: client.user, page: 'commands' });
+    });
+
+    app.get('/commands/:category', (req, res) => {
+        const category = req.params.category;
+        res.render('commands_sub', {
+            user: client.user,
+            page: 'commands',
+            category: category.charAt(0).toUpperCase() + category.slice(1)
+        });
+    });
+
     // --- MUSIC Routes ---
 
     app.get('/music', (req, res) => {

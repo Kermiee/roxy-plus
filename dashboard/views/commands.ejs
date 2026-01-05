@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roxy+ Commands</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        .cmd-container {
+            width: 95%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px 100px;
+        }
+
+        .cmd-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .cmd-header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, #a29bfe);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(138, 43, 226, 0.3);
+        }
+
+        .cmd-header p {
+            color: #888;
+            font-size: 1.2rem;
+        }
+
+        .cmd-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .cmd-card {
+            background: #111116;
+            /* Solid consistent background */
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 250px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .cmd-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(162, 155, 254, 0.5);
+            background: #16161d;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .cmd-card:active {
+            transform: scale(0.98);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 18px;
+            transition: all 0.3s ease;
+            color: #ccc;
+        }
+
+        .cmd-card:hover .card-icon {
+            transform: scale(1.1);
+            color: #fff;
+            background: rgba(138, 43, 226, 0.2);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .card-desc {
+            font-size: 1rem;
+            color: #888;
+            line-height: 1.5;
+            transition: 0.3s;
+        }
+
+        .cmd-card:hover .card-desc {
+            color: #aaa;
+        }
+
+        .card-rpc .card-icon {
+            color: #f1c40f;
+        }
+
+        .card-rpc:hover .card-icon {
+            background: rgba(241, 196, 15, 0.2);
+            color: #f1c40f;
+        }
+
+        .card-reaction .card-icon {
+            color: #e74c3c;
+        }
+
+        .card-reaction:hover .card-icon {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+        }
+
+        .card-mirror .card-icon {
+            color: #3498db;
+        }
+
+        .card-mirror:hover .card-icon {
+            background: rgba(52, 152, 219, 0.2);
+            color: #3498db;
+        }
+
+        .card-more .card-icon {
+            color: #9b59b6;
+        }
+
+        .card-more:hover .card-icon {
+            background: rgba(155, 89, 182, 0.2);
+            color: #9b59b6;
+        }
+
+        /* Clone Animation Style */
+        .card-clone {
+            position: fixed;
+            z-index: 9999;
+            pointer-events: none;
+            transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+            background: #111116;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @media(max-width: 768px) {
+            .cmd-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cmd-card {
+                height: auto;
+                min-height: 200px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="cmd-container">
+        <div class="cmd-header">
+            <h1>Control Panel</h1>
+            <p>Manage bot modules and feature configurations.</p>
+        </div>
+
+        <div class="cmd-grid">
+            <div class="cmd-card card-rpc" onclick="openCard(this, 'rpc')">
+                <div class="card-icon">🎮</div>
+                <div>
+                    <div class="card-title">Rich Presence</div>
+                    <div class="card-desc">Customize the bot's status, activity, and presence details.</div>
+                </div>
+            </div>
+
+            <div class="cmd-card card-reaction" onclick="openCard(this, 'reaction')">
+                <div class="card-icon">✨</div>
+                <div>
+                    <div class="card-title">Reaction Roles</div>
+                    <div class="card-desc">Setup self-assigned roles via reaction emojis for your community.</div>
+                </div>
+            </div>
+
+            <div class="cmd-card card-mirror" onclick="openCard(this, 'mirror')">
+                <div class="card-icon">🔮</div>
+                <div>
+                    <div class="card-title">Mirror &amp; Cloner</div>
+                    <div class="card-desc">Duplicate server settings, channels, and permissions instantly.</div>
+                </div>
+            </div>
+
+            <div class="cmd-card card-more" onclick="openCard(this, 'more')">
+                <div class="card-icon">🎲</div>
+                <div>
+                    <div class="card-title">More Features</div>
+                    <div class="card-desc">Explore additional tools and utilities coming soon.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('partials/super_button') %>
+
+        <script>
+            function openCard(el, type) {
+                // Prevent multiple clicks
+                if (el.classList.contains('animating')) return;
+                el.classList.add('animating');
+
+                // Create Clone
+                const rect = el.getBoundingClientRect();
+                const clone = el.cloneNode(true);
+
+                // Reset transform on clone (since hover/active might have changed it slightly)
+                clone.style.transform = 'none';
+
+                // Style Clone
+                clone.classList.add('card-clone');
+                clone.style.top = rect.top + 'px';
+                clone.style.left = rect.left + 'px';
+                clone.style.width = rect.width + 'px';
+                clone.style.height = rect.height + 'px';
+                clone.style.margin = '0';
+                clone.style.borderRadius = '24px';
+                clone.style.background = '#13131a'; // Match card/page bg
+
+                // Append to Body
+                document.body.appendChild(clone);
+
+                // Hide Original temporarily
+                el.style.opacity = '0';
+
+                // Animate
+                requestAnimationFrame(() => {
+                    clone.style.top = '0';
+                    clone.style.left = '0';
+                    clone.style.width = '100vw';
+                    clone.style.height = '100vh';
+                    clone.style.borderRadius = '0';
+                    clone.style.padding = '50px'; // Add padding to animate content shifting if wanted
+
+                    // Fade out the content of the clone? Or keep it?
+                    // "App Opening" usually keeps the icon/colors.
+                    // We'll keep it, and fade into new page which is dark anyway.
+                });
+
+                // Navigate after animation
+                setTimeout(() => {
+                    window.location.href = '/commands/' + type;
+                }, 500);
+            }
+
+            // Handle Back Navigation (Browser Back)
+            window.addEventListener('pageshow', (event) => {
+                if (event.persisted) {
+                    // Restore state if coming from cache
+                    document.querySelectorAll('.cmd-card').forEach(c => c.style.opacity = '1');
+                    const clone = document.querySelector('.card-clone');
+                    if (clone) clone.remove();
+                }
+            });
+        </script>
+</body>
+
+</html>
