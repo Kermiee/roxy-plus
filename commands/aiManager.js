@@ -117,7 +117,7 @@ async function generateReply(userId, userContent) {
     let maxTokens = 16384;
 
     if (config.modelType === "fast") {
-        modelName = "moonshotai/kimi-k2-instruct-0905";
+        modelName = "deepseek-ai/deepseek-v3.1";
         temp = 0.6;
         maxTokens = 4096;
     }
@@ -158,7 +158,7 @@ async function generateReply(userId, userContent) {
 
     } catch (error) {
         console.error("[AI] Error generating reply:", error);
-        return "I encountered an error trying to think.";
+        return "what you mean?";
     }
 }
 

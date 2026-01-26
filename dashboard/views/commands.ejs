@@ -148,6 +148,15 @@
             color: #9b59b6;
         }
 
+        .card-clipboard .card-icon {
+            color: #2ecc71;
+        }
+
+        .card-clipboard:hover .card-icon {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+        }
+
         /* Clone Animation Style */
         .card-clone {
             position: fixed;
@@ -205,6 +214,14 @@
                 <div>
                     <div class="card-title">Mirror</div>
                     <div class="card-desc">Mirror any server chat with webhook or without webhook</div>
+                </div>
+            </div>
+
+            <div class="cmd-card card-clipboard" onclick="openCard(this, 'clipboard')">
+                <div class="card-icon">📋</div>
+                <div>
+                    <div class="card-title">Clipboard</div>
+                    <div class="card-desc">Custom trigger words and responses.</div>
                 </div>
             </div>
 

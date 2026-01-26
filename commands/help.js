@@ -19,6 +19,14 @@ module.exports = {
             categories[cat].push(cmd);
         });
 
+        // Inject Clipboard Help
+        if (categories['Utility']) {
+            categories['Utility'].push({
+                name: '<trigger>',
+                description: 'Custom Clipboard Trigger'
+            });
+        }
+
         let replyMsg = null;
 
         // 1. Show Specific Category

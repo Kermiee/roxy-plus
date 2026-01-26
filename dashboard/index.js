@@ -275,7 +275,8 @@ module.exports = (client) => {
             ...existingData,
             isOn: isAfkOn,
             reason: reason || existingData.reason || 'I am currently AFK.',
-            logsEnabled: isLogsOn
+            logsEnabled: isLogsOn,
+            startTime: isAfkOn ? Date.now() : (existingData.startTime || 0)
         };
 
         fs.writeFileSync(afkPath, JSON.stringify(newData, null, 2));
@@ -450,6 +451,27 @@ module.exports = (client) => {
     app.get('/commands/mirror', (req, res) => {
         res.render('cmd_mirror', { user: client.user, page: 'commands' });
     });
+    app.get('/commands/clipboard', (req, res) => {
+        res.render('cmd_clipboard', { user: client.user, page: 'commands' });
+    });
+
+    app.get('/api/clipboard', (req, res) => {
+        const clipboardManager = require('../commands/clipboardManager');
+        res.json(clipboardManager.loadData());
+    });
+
+    app.post('/api/clipboard', (req, res) => {
+        const clipboardManager = require('../commands/clipboardManager');
+        const { action, trigger, response } = req.body;
+
+        if (action === 'add') {
+            clipboardManager.addTrigger(trigger, response);
+        } else if (action === 'remove') {
+            clipboardManager.removeTrigger(trigger);
+        }
+        res.json({ success: true });
+    });
+
     app.get('/commands/allowed', (req, res) => {
         res.render('cmd_allowed', { user: client.user, page: 'commands' });
     });
