@@ -33,6 +33,17 @@ function loadData() {
 
 function saveData(data) {
     if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+
+    // Calculate Absolute Epoch for Timer Persistence
+    // This anchors the "Elapsed" timer so it doesn't reset on bot restarts
+    const offset = parseInt(data.startTimestamp);
+    if (!isNaN(offset) && offset > 0) {
+        // Current Time - User's Offset (e.g. 21 hours) = The Timestamp when it "Started"
+        data.epochTimestamp = Date.now() - offset;
+    } else {
+        delete data.epochTimestamp; // Remove if invalid/zero
+    }
+
     fs.writeFileSync(RPC_FILE, JSON.stringify(data, null, 2));
 }
 
@@ -59,10 +70,13 @@ async function setPresence(client, data) {
                 rpcActivity.url = 'https://twitch.tv/discord';
             }
 
-            // Timestamp Logic
-            const startTimeVal = parseInt(data.startTimestamp);
-            if (startTimeVal && startTimeVal > 0) {
-                rpcActivity.timestamps = { start: Date.now() - startTimeVal };
+            // Timestamp Logic (Fixed Persistence)
+            // Use the saved Epoch timestamp if available, otherwise fallback (legacy behavior)
+            if (data.epochTimestamp && data.epochTimestamp > 0) {
+                rpcActivity.timestamps = { start: data.epochTimestamp };
+            } else if (data.startTimestamp > 0) {
+                // Fallback for old configs: Calculate temporary epoch
+                rpcActivity.timestamps = { start: Date.now() - parseInt(data.startTimestamp) };
             }
 
             if (data.largeImage) {
