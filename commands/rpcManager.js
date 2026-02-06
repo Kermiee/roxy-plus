@@ -19,7 +19,8 @@ const defaultData = {
     button1Text: '',
     button1Url: '',
     button2Text: '',
-    button2Url: ''
+    button2Url: '',
+    startTimestamp: 0
 };
 
 function loadData() {
@@ -56,6 +57,13 @@ async function setPresence(client, data) {
 
             if (data.type.toUpperCase() === 'STREAMING') {
                 rpcActivity.url = 'https://twitch.tv/discord';
+            }
+
+            // Timestamp Logic
+            const startTimeVal = parseInt(data.startTimestamp);
+            if (startTimeVal && startTimeVal > 0) {
+                // data.startTimestamp is user input (e.g., number of ms to show passed)
+                rpcActivity.timestamps = { start: Date.now() - startTimeVal };
             }
 
             if (data.largeImage) {

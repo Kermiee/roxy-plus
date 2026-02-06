@@ -230,7 +230,7 @@
                 <div class="status-row">
                     <span style="font-size: 1.2rem; font-weight:600;">Enable RPC</span>
                     <label class="switch">
-                        <input type="checkbox" id="enabled">
+                        <input type="checkbox" id="enabled" onchange="saveRpc(null, true)">
                         <span class="slider"></span>
                     </label>
                 </div>
@@ -265,60 +265,82 @@
                         <input type="text" id="details" class="input-field" placeholder="e.g. Preparing for battle">
                     </div>
                     <div class="input-group full-width">
-                        <label class="input-label">State (Third Line)</label>
-                        <input type="text" id="state" class="input-field" placeholder="e.g. Level 99">
+                        <div class="input-group full-width">
+                            <label class="input-label">State (Third Line)</label>
+                            <input type="text" id="state" class="input-field" placeholder="e.g. Level 99">
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="section-card">
-                <div class="section-title">Images (Assets)</div>
-                <div class="form-grid">
-                    <div class="input-group">
-                        <label class="input-label">Large Image URL</label>
-                        <input type="text" id="largeImage" class="input-field" placeholder="https://...">
-                    </div>
-                    <div class="input-group">
-                        <label class="input-label">Large Image Tooltip</label>
-                        <input type="text" id="largeText" class="input-field" placeholder="Text when hovering image">
-                    </div>
-                    <div class="input-group">
-                        <label class="input-label">Small Image URL</label>
-                        <input type="text" id="smallImage" class="input-field" placeholder="https://...">
-                    </div>
-                    <div class="input-group">
-                        <label class="input-label">Small Image Tooltip</label>
-                        <input type="text" id="smallText" class="input-field"
-                            placeholder="Text when hovering small image">
+                <div class="section-card">
+                    <div class="section-title">Time Elapsed</div>
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label class="input-label">Start Time From Now</label>
+                            <input type="number" id="timeVal" class="input-field" placeholder="e.g. 5" min="0">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Unit</label>
+                            <select id="timeUnit" class="input-field">
+                                <option value="none">None (Hide Timer)</option>
+                                <option value="minute">Minutes Ago</option>
+                                <option value="hour">Hours Ago</option>
+                                <option value="day">Days Ago</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="section-card">
-                <div class="section-title">Interactive Buttons</div>
-                <div class="form-grid">
-                    <div class="input-group">
-                        <label class="input-label">Button 1 Label</label>
-                        <input type="text" id="button1Text" class="input-field" placeholder="Visit Website">
-                    </div>
-                    <div class="input-group">
-                        <label class="input-label">Button 1 URL</label>
-                        <input type="text" id="button1Url" class="input-field" placeholder="https://...">
-                    </div>
-                    <div class="input-group">
-                        <label class="input-label">Button 2 Label</label>
-                        <input type="text" id="button2Text" class="input-field" placeholder="Join Server">
-                    </div>
-                    <div class="input-group">
-                        <label class="input-label">Button 2 URL</label>
-                        <input type="text" id="button2Url" class="input-field" placeholder="https://...">
+                <div class="section-card">
+                    <div class="section-title">Images (Assets)</div>
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label class="input-label">Large Image URL</label>
+                            <input type="text" id="largeImage" class="input-field" placeholder="https://...">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Large Image Tooltip</label>
+                            <input type="text" id="largeText" class="input-field"
+                                placeholder="Text when hovering image">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Small Image URL</label>
+                            <input type="text" id="smallImage" class="input-field" placeholder="https://...">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Small Image Tooltip</label>
+                            <input type="text" id="smallText" class="input-field"
+                                placeholder="Text when hovering small image">
+                        </div>
                     </div>
                 </div>
-                <p style="color: #666; font-size: 0.8rem; margin-top: -10px; font-style: italic;">Note: Discord prevents
-                    you from clicking your own RPC buttons. Ask others to verify they work.</p>
-            </div>
 
-            <button type="submit" class="btn-save" id="saveBtn">Save Configuration</button>
+                <div class="section-card">
+                    <div class="section-title">Interactive Buttons</div>
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label class="input-label">Button 1 Label</label>
+                            <input type="text" id="button1Text" class="input-field" placeholder="Visit Website">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Button 1 URL</label>
+                            <input type="text" id="button1Url" class="input-field" placeholder="https://...">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Button 2 Label</label>
+                            <input type="text" id="button2Text" class="input-field" placeholder="Join Server">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Button 2 URL</label>
+                            <input type="text" id="button2Url" class="input-field" placeholder="https://...">
+                        </div>
+                    </div>
+                    <p style="color: #666; font-size: 0.8rem; margin-top: -10px; font-style: italic;">Note: Discord
+                        prevents
+                        you from clicking your own RPC buttons. Ask others to verify they work.</p>
+                </div>
+
+                <button type="submit" class="btn-save" id="saveBtn">Save Configuration</button>
         </form>
     </div>
 
@@ -338,6 +360,27 @@
                     document.getElementById('details').value = data.details || '';
                     document.getElementById('state').value = data.state || '';
 
+                    // Reverse Calculate Time
+                    if (data.startTimestamp && data.startTimestamp > 0) {
+                        const ms = data.startTimestamp;
+                        if (ms >= 86400000 && ms % 86400000 === 0) {
+                            document.getElementById('timeVal').value = ms / 86400000;
+                            document.getElementById('timeUnit').value = 'day';
+                        } else if (ms >= 3600000 && ms % 3600000 === 0) {
+                            document.getElementById('timeVal').value = ms / 3600000;
+                            document.getElementById('timeUnit').value = 'hour';
+                        } else if (ms >= 60000) {
+                            // Default fallback preference
+                            document.getElementById('timeVal').value = Math.floor(ms / 60000);
+                            document.getElementById('timeUnit').value = 'minute';
+                        } else {
+                            document.getElementById('timeVal').value = '';
+                            document.getElementById('timeUnit').value = 'none';
+                        }
+                    } else {
+                        document.getElementById('timeUnit').value = 'none';
+                    }
+
                     document.getElementById('largeImage').value = data.largeImage || '';
                     document.getElementById('largeText').value = data.largeText || '';
                     document.getElementById('smallImage').value = data.smallImage || '';
@@ -350,12 +393,16 @@
                 } catch (e) { console.error(e); }
             };
 
-            async function saveRpc(e) {
-                e.preventDefault();
+            async function saveRpc(e, silent = false) {
+                if (e) e.preventDefault();
+
                 const btn = document.getElementById('saveBtn');
-                const originalText = btn.innerText;
-                btn.innerText = "Saving...";
-                btn.disabled = true;
+                const originalText = "Save Configuration"; // Hardcoded default
+
+                if (!silent) {
+                    btn.innerText = "Saving...";
+                    btn.disabled = true;
+                }
 
                 const data = {
                     enabled: document.getElementById('enabled').checked,
@@ -364,6 +411,8 @@
                     applicationId: document.getElementById('applicationId').value,
                     details: document.getElementById('details').value,
                     state: document.getElementById('state').value,
+
+                    startTimestamp: calculateMs(),
 
                     largeImage: document.getElementById('largeImage').value,
                     largeText: document.getElementById('largeText').value,
@@ -385,23 +434,41 @@
                     const result = await res.json();
 
                     if (result.success) {
-                        btn.innerText = "Saved Successfully!";
-                        btn.style.background = "#2ecc71"; // Green
-                        setTimeout(() => {
-                            btn.innerText = originalText;
-                            btn.style.background = ""; // Reset
-                            btn.disabled = false;
-                        }, 2000);
+                        if (!silent) {
+                            btn.innerText = "Saved Successfully!";
+                            btn.style.background = "#2ecc71"; // Green
+                            setTimeout(() => {
+                                btn.innerText = originalText;
+                                btn.style.background = ""; // Reset
+                                btn.disabled = false;
+                            }, 2000);
+                        }
                     } else {
-                        alert('Failed to save.');
-                        btn.innerText = originalText;
-                        btn.disabled = false;
+                        if (!silent) {
+                            alert('Failed to save.');
+                            btn.innerText = originalText;
+                            btn.disabled = false;
+                        }
                     }
                 } catch (e) {
                     console.error(e);
-                    btn.innerText = originalText;
-                    btn.disabled = false;
+                    if (!silent) {
+                        btn.innerText = originalText;
+                        btn.disabled = false;
+                    }
                 }
+            }
+
+            function calculateMs() {
+                const val = parseInt(document.getElementById('timeVal').value);
+                const unit = document.getElementById('timeUnit').value;
+
+                if (!val || val < 0 || unit === 'none') return 0;
+
+                if (unit === 'minute') return val * 60 * 1000;
+                if (unit === 'hour') return val * 60 * 60 * 1000;
+                if (unit === 'day') return val * 24 * 60 * 60 * 1000;
+                return 0;
             }
         </script>
 </body>
