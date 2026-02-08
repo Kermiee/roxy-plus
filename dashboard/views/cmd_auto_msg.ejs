@@ -278,10 +278,11 @@
             <div class="section-title">Schedule New Message</div>
 
             <div class="input-group">
-                <label class="input-label">Channel ID</label>
-                <input type="text" id="channelId" class="input-field" placeholder="Channel ID..."
+                <label class="input-label">Channel or User ID (DM)</label>
+                <input type="text" id="channelId" class="input-field" placeholder="Enter Channel/User ID"
                     oninput="validateChannel()">
-                <div id="channelPreview" style="display:none; margin-top:5px;"></div>
+                <!-- Preview -->
+                <div id="channelPreview" style="margin-top: 10px; display: none;"></div>
             </div>
 
             <div class="form-grid">
@@ -343,21 +344,23 @@
                     preview.innerHTML = '<div style="color:#999; font-size:0.9rem;">Verifying...</div>';
 
                     try {
-                        // Reuse generic channel validation or specific mirror one (mirror one checks more perms but VIEW/SEND is what we need)
-                        // We can reuse mirror-channel validation with type='target' (checks SEND_MESSAGES)
-                        const res = await fetch('/api/validate/mirror-channel', {
+                        // Use new Mixed Validation (Channel/User)
+                        const res = await fetch('/api/validate/mixed', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ id, checkWebhook: false, type: 'target' })
+                            body: JSON.stringify({ id })
                         });
 
                         if (res.ok) {
                             const info = await res.json();
+                            // Type: 'channel' or 'user'
+                            const isUser = info.type === 'user';
+
                             preview.innerHTML = `
                              <div class="channel-preview">
-                                <img src="${info.icon || 'https://cdn.discordapp.com/embed/avatars/0.png'}" class="cp-icon">
+                                <img src="${info.icon || 'https://cdn.discordapp.com/embed/avatars/0.png'}" class="cp-icon" style="border-radius: ${isUser ? '50%' : '5px'}">
                                 <div class="cp-info">
-                                    <div class="cp-name">#${info.name}</div>
+                                    <div class="cp-name">${isUser ? '@' : '#'}${info.name}</div>
                                     <div class="cp-sub">${info.guildName}</div>
                                 </div>
                             </div>

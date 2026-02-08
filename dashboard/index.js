@@ -445,6 +445,40 @@ module.exports = (client) => {
         } catch (e) { res.status(500).json({ error: e.message }); }
     });
 
+    // Validate Channel OR User (Mixed) for Auto Msg
+    app.post('/api/validate/mixed', async (req, res) => {
+        const { id } = req.body;
+        try {
+            // Check Channel First
+            const channel = await client.channels.fetch(id).catch(() => null);
+            if (channel) {
+                // Must be text-based to send messages
+                if (!channel.isText()) return res.status(400).json({ error: 'Channel is not a text channel' });
+                return res.json({
+                    type: 'channel',
+                    id: channel.id,
+                    name: channel.name,
+                    guildName: channel.guild?.name || 'DM',
+                    icon: channel.guild?.iconURL({ dynamic: true }) || 'https://cdn.discordapp.com/embed/avatars/0.png'
+                });
+            }
+
+            // Check User Second
+            const user = await client.users.fetch(id).catch(() => null);
+            if (user) {
+                return res.json({
+                    type: 'user',
+                    id: user.id,
+                    name: user.username,
+                    guildName: 'Direct Message', // Display context as DM for clarity
+                    icon: user.displayAvatarURL({ dynamic: true })
+                });
+            }
+
+            res.status(404).json({ error: 'ID not found (Must be Channel or User)' });
+        } catch (e) { res.status(500).json({ error: e.message }); }
+    });
+
     app.get('/commands/reaction', (req, res) => {
         res.render('cmd_reaction', { user: client.user, page: 'commands' });
     });

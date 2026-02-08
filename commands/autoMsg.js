@@ -52,28 +52,47 @@ async function initialize(client) {
 }
 
 async function startTimer(client, channelId, messageContent, intervalVal, unit) {
-    // Clear existing timer for this channel if any (to update)
+    // Clear existing timer for this channel/user if any
     stopTimer(channelId);
 
     const ms = getMilliseconds(intervalVal, unit);
     if (!ms || ms < 1000) throw new Error("Invalid interval (Min 1 second)");
 
-    const channel = await client.channels.fetch(channelId).catch(() => null);
-    if (!channel) throw new Error("Channel not found/accessible");
+    let target;
+    let targetType = 'channel';
 
-    if (channel.guild) {
-        if (!channel.permissionsFor(client.user).has('SEND_MESSAGES')) {
-            throw new Error("Missing SEND_MESSAGES permission");
+    // Try Channel First
+    try {
+        const channel = await client.channels.fetch(channelId).catch(() => null);
+        if (channel) {
+            if (channel.guild) {
+                if (!channel.permissionsFor(client.user).has('SEND_MESSAGES')) {
+                    throw new Error("Missing SEND_MESSAGES permission in Channel");
+                }
+            }
+            target = channel;
         }
+    } catch (e) { }
+
+    // Try User Second (if not channel)
+    if (!target) {
+        try {
+            const user = await client.users.fetch(channelId).catch(() => null);
+            if (user) {
+                target = user; // Users have .send() method too
+                targetType = 'user';
+            }
+        } catch (e) { }
     }
+
+    if (!target) throw new Error("ID not found (Must be a valid Channel ID or User ID)");
 
     // Interval Function
     const timer = setInterval(async () => {
         try {
-            await channel.send(messageContent);
+            await target.send(messageContent);
         } catch (e) {
-            console.error(`[Auto Msg] Failed to send to ${channelId}:`, e.message);
-            // Optionally stop timer if permission lost? For now keep retrying.
+            console.error(`[Auto Msg] Failed to send to ${targetType} ${channelId}:`, e.message);
         }
     }, ms);
 
