@@ -34,8 +34,10 @@ module.exports = {
             msg += `Zip Code    : ${data.zip}\n`;
             msg += `Timezone    : ${data.timezone}\n`;
             msg += `Coordinates : ${data.lat}, ${data.lon}\n`;
-            msg += '```';
+            msg += '```\n';
 
+            // Add Google Maps link outside code block
+            msg += `[View on Google Maps](https://www.google.com/maps/search/?api=1&query=${data.lat},${data.lon})`;
 
             await message.channel.send(msg);
             return true;
