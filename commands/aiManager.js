@@ -174,6 +174,12 @@ function initialize(client) {
             // CRITICAL FIX: Prevent self-reply loop & specific crashes
             if (!client.user || message.author.id === client.user.id) return;
 
+            // Ignore system messages and non-text content
+            if (message.system || !message.content || !message.content.trim()) return;
+
+            const ignoredTypes = ['RECIPIENT_ADD', 'RECIPIENT_REMOVE', 'CALL', 'CHANNEL_NAME_CHANGE', 'CHANNEL_ICON_CHANGE', 'PINS_ADD'];
+            if (ignoredTypes.includes(message.type)) return;
+
             const config = loadData();
             const content = message.content;
             const guildId = message.guild?.id;

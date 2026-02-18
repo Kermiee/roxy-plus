@@ -30,7 +30,7 @@ const voiceStates = {};
 client.commands = new Map();
 client.lavalink = lavalink;
 client.queueManager = queueManager;
-client.voiceStates = voiceStates;
+client.lavalinkVoiceStates = voiceStates;
 
 // Allowed Users Logic
 const allowedManager = require('./commands/allowedManager');
@@ -322,7 +322,7 @@ client.on('messageCreate', async (message) => {
             if (ipHandled) return;
 
             // --- TTS AUTO-SPEAK SYSTEM ---
-            if (client.ttsMap && client.ttsMap.has(message.guild.id)) {
+            if (message.guild && client.ttsMap && client.ttsMap.has(message.guild.id)) {
                 // If TTS is enabled for this guild
                 const bindChannelId = client.ttsMap.get(message.guild.id);
                 // Only speak if in the bound channel (or unrestricted) and NOT a command
