@@ -14,6 +14,7 @@ class Queue {
             nowPlaying: null,
             volume: 100,
             filters: {},
+            loop: 'none',
             textChannel: null,
         };
         this.queues.set(guildId, queue);

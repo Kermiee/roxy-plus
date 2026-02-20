@@ -770,6 +770,7 @@ module.exports = (client) => {
             position: 0,
             duration: 0,
             volume: 100,
+            loop: 'none',
             queue: [],
             queueCount: 0
         };
@@ -786,6 +787,7 @@ module.exports = (client) => {
                 musicData.guildName = guild ? guild.name : `Guild ${guildId}`;
                 musicData.guildIcon = guild ? guild.iconURL({ dynamic: true, size: 128 }) : null;
                 musicData.volume = queue.volume !== undefined ? queue.volume : 100;
+                musicData.loop = queue.loop || 'none';
 
                 // Try to find channel name
                 // queue doesn't store channelId? Lavalink might. 
@@ -896,7 +898,7 @@ module.exports = (client) => {
                         queue.nowPlaying = nextSong;
                         queue.position = 0;
                         queue.lastUpdate = Date.now();
-                        await client.lavalink.updatePlayer(guildId, nextSong, client.voiceStates[guildId] || {});
+                        await client.lavalink.updatePlayer(guildId, nextSong, client.lavalinkVoiceStates[guildId] || {});
                     }
                     return res.json({ success: true });
                 }
@@ -915,7 +917,7 @@ module.exports = (client) => {
                     queue.nowPlaying = prev;
                     queue.position = 0;
                     queue.lastUpdate = Date.now();
-                    await client.lavalink.updatePlayer(guildId, prev, client.voiceStates[guildId] || {});
+                    await client.lavalink.updatePlayer(guildId, prev, client.lavalinkVoiceStates[guildId] || {});
                     return res.json({ success: true });
                 }
             }
@@ -929,13 +931,30 @@ module.exports = (client) => {
             const queue = client.queueManager ? client.queueManager.get(guildId) : null;
             if (queue && client.lavalink) {
                 const vol = parseInt(volume);
-                if (!isNaN(vol) && vol >= 0 && vol <= 200) {
+                if (!isNaN(vol) && vol >= 0 && vol <= 500) {
                     queue.volume = vol;
                     await client.lavalink.updatePlayerProperties(guildId, { volume: vol });
                     return res.json({ success: true, volume: vol });
                 }
             }
             res.json({ success: false, message: 'No active player or invalid volume' });
+        } catch (e) {
+            console.error(e);
+            res.status(500).json({ success: false, error: e.message });
+        }
+    });
+
+    app.post('/api/music/loop', async (req, res) => {
+        const { guildId } = req.body;
+        try {
+            const queue = client.queueManager ? client.queueManager.get(guildId) : null;
+            if (queue && client.lavalink) {
+                if (queue.loop === 'none') queue.loop = 'track';
+                else if (queue.loop === 'track') queue.loop = 'queue';
+                else if (queue.loop === 'queue') queue.loop = 'none';
+                return res.json({ success: true, loop: queue.loop });
+            }
+            res.json({ success: false, message: 'No active player' });
         } catch (e) {
             console.error(e);
             res.status(500).json({ success: false, error: e.message });

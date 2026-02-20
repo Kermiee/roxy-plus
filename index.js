@@ -145,7 +145,14 @@ if (client.lavalink) {
                 if (!queue) return;
 
                 if (queue.nowPlaying) {
-                    queue.history.push(queue.nowPlaying);
+                    if (queue.loop === 'track') {
+                        queue.songs.unshift(queue.nowPlaying);
+                    } else if (queue.loop === 'queue') {
+                        queue.history.push(queue.nowPlaying);
+                        queue.songs.push(queue.nowPlaying);
+                    } else {
+                        queue.history.push(queue.nowPlaying);
+                    }
                 }
 
                 const nextSong = queueManager.getNext(evt.guildId);

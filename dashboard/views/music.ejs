@@ -159,6 +159,7 @@
             overflow: hidden;
             text-overflow: ellipsis;
             background: linear-gradient(to right, #fff, #a29bfe);
+            background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -531,7 +532,7 @@
                         <path
                             d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
                     </svg>
-                    <input type="range" id="volumeSlider" min="0" max="200" value="100"
+                    <input type="range" id="volumeSlider" min="0" max="500" value="100"
                         style="flex:1; cursor: pointer; accent-color: #8a2be2; height: 5px; border-radius: 5px;">
                     <span id="volumeValue"
                         style="color:#fff; font-family:monospace; font-weight:bold; min-width: 45px; text-align: right;">100%</span>
@@ -547,6 +548,15 @@
                     <button class="btn-control btn-skip" onclick="skipSong()" title="Skip"><svg viewBox="0 0 24 24">
                             <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
                         </svg></button>
+                    <button class="btn-control btn-loop" id="btnLoop" onclick="toggleLoop()" title="Loop: None"
+                        style="background: rgba(138, 43, 226, 0.1); color: #8a2be2; border: 1px solid rgba(138, 43, 226, 0.3);">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z" opacity="0.5" />
+                        </svg>
+                    </button>
+                </div>
+                <div id="loopStatusMsg"
+                    style="color: #a29bfe; font-size: 0.9rem; margin-top: -15px; margin-bottom: 20px; text-align: center; opacity: 0; transition: opacity 0.3s; font-weight: 500; height: 20px;">
                 </div>
 
                 <!-- Extra Controls Removed as per request -->
@@ -643,6 +653,31 @@
                 document.getElementById('progressBar').style.width = percent + '%';
                 document.getElementById('currTime').innerText = formatTime(data.position);
                 document.getElementById('totalTime').innerText = formatTime(data.duration);
+
+                const btnLoop = document.getElementById('btnLoop');
+                const svgRepeat = '<svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>';
+                const svgRepeatOne = '<svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4zm-4-2V9h-1l-2 1v1h1.5v4H13z"/></svg>';
+                const svgNone = '<svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z" opacity="0.5"/></svg>';
+
+                if (data.loop === 'track') {
+                    btnLoop.innerHTML = svgRepeatOne;
+                    btnLoop.title = 'Loop: Track';
+                    btnLoop.style.background = 'rgba(46, 204, 113, 0.2)';
+                    btnLoop.style.color = '#2ecc71';
+                    btnLoop.style.borderColor = 'rgba(46, 204, 113, 0.4)';
+                } else if (data.loop === 'queue') {
+                    btnLoop.innerHTML = svgRepeat;
+                    btnLoop.title = 'Loop: Queue';
+                    btnLoop.style.background = 'rgba(52, 152, 219, 0.2)';
+                    btnLoop.style.color = '#3498db';
+                    btnLoop.style.borderColor = 'rgba(52, 152, 219, 0.4)';
+                } else {
+                    btnLoop.innerHTML = svgNone;
+                    btnLoop.title = 'Loop: None';
+                    btnLoop.style.background = 'rgba(138, 43, 226, 0.1)';
+                    btnLoop.style.color = '#8a2be2';
+                    btnLoop.style.borderColor = 'rgba(138, 43, 226, 0.3)';
+                }
 
                 if (!isDraggingVolume) {
                     const vol = data.volume !== undefined ? data.volume : 100;
@@ -767,6 +802,34 @@
             async function skipSong() { await fetch('/api/music/skip', { method: 'POST' }); updateState(); }
             async function prevSong() { await fetch('/api/music/previous', { method: 'POST' }); updateState(); }
             async function stopMusic() { if (confirm('Stop music?')) await fetch('/api/music/stop', { method: 'POST' }); updateState(); }
+
+            async function toggleLoop() {
+                if (!currentGuildId) return;
+                try {
+                    const res = await fetch('/api/music/loop', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ guildId: currentGuildId })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showLoopMessage(data.loop);
+                    }
+                } catch (e) { }
+                updateState();
+            }
+
+            let loopMsgTimeout;
+            function showLoopMessage(state) {
+                const msgDiv = document.getElementById('loopStatusMsg');
+                if (!msgDiv) return;
+                msgDiv.innerText = "Loop mode set to: " + state.toUpperCase();
+                msgDiv.style.opacity = '1';
+                clearTimeout(loopMsgTimeout);
+                loopMsgTimeout = setTimeout(() => {
+                    msgDiv.style.opacity = '0';
+                }, 5000);
+            }
 
             // Volume Logic
             const vSlider = document.getElementById('volumeSlider');

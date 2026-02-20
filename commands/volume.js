@@ -2,8 +2,8 @@ module.exports = {
     name: 'volume',
     aliases: ['vol', 'v'],
     category: 'Music',
-    description: 'Set volume (0-200)',
-    usage: 'volume <0-200>',
+    description: 'Set volume (0-500)',
+    usage: 'volume <0-500>',
     async execute(message, args, client) {
         if (!message.guild) return;
 
@@ -17,8 +17,8 @@ module.exports = {
         }
 
         const vol = parseInt(args[0]);
-        if (isNaN(vol) || vol < 0 || vol > 200) {
-            return message.channel.send('provide a volume between 0-200.');
+        if (isNaN(vol) || vol < 0 || vol > 500) {
+            return message.channel.send('provide a volume between 0-500.');
         }
 
         queue.volume = vol;
