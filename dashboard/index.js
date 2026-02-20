@@ -961,6 +961,79 @@ module.exports = (client) => {
         }
     });
 
+    // fs and path already required at the top
+
+    app.get('/api/music/playlists', (req, res) => {
+        try {
+            const pltPath = path.join(__dirname, '../data/playlists.json');
+            if (fs.existsSync(pltPath)) {
+                const data = JSON.parse(fs.readFileSync(pltPath, 'utf8'));
+                res.json({ success: true, playlists: Object.keys(data) });
+            } else {
+                res.json({ success: true, playlists: [] });
+            }
+        } catch (e) {
+            res.json({ success: false, error: e.message });
+        }
+    });
+
+    app.post('/api/music/playlist/load', async (req, res) => {
+        const { guildId, name } = req.body;
+        try {
+            const pltPath = path.join(__dirname, '../data/playlists.json');
+            if (!fs.existsSync(pltPath)) return res.json({ success: false, message: 'No playlists found' });
+
+            const data = JSON.parse(fs.readFileSync(pltPath, 'utf8'));
+            const playlist = data[name];
+            if (!playlist || playlist.length === 0) return res.json({ success: false, message: 'Playlist not found or empty' });
+
+            const voiceState = client.lavalinkVoiceStates ? client.lavalinkVoiceStates[guildId] : null;
+            if (!voiceState || !voiceState.token) {
+                return res.json({ success: false, message: 'Bot not connected to voice in this server' });
+            }
+
+            let queue = client.queueManager ? client.queueManager.get(guildId) : null;
+            if (!queue) {
+                queue = client.queueManager.create(guildId);
+            }
+
+            let added = 0;
+            for (const song of playlist) {
+                try {
+                    const lRes = await client.lavalink.loadTracks(song.uri);
+                    let trackToLoad;
+
+                    if (lRes.loadType === 'track') trackToLoad = lRes.data;
+                    else if (lRes.loadType === 'playlist') trackToLoad = lRes.data.tracks[0];
+                    else if (lRes.loadType === 'search') trackToLoad = lRes.data[0];
+
+                    if (trackToLoad) {
+                        client.queueManager.addSong(guildId, trackToLoad);
+                        added++;
+                    }
+                } catch (e) {
+                    console.error('Error loading fav track:', e);
+                }
+            }
+
+            if (added > 0 && !queue.nowPlaying && client.queueManager) {
+                const nextSong = client.queueManager.getNext(guildId);
+                if (nextSong) {
+                    queue.nowPlaying = nextSong;
+                    await client.lavalink.updatePlayer(guildId, nextSong, voiceState, {
+                        volume: queue.volume,
+                        filters: queue.filters
+                    });
+                }
+            }
+
+            res.json({ success: true, added });
+        } catch (e) {
+            console.error('Playlist load API error:', e);
+            res.json({ success: false, message: e.message });
+        }
+    });
+
 
 
 
