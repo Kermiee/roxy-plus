@@ -1,6 +1,6 @@
 module.exports = {
     name: 'seek',
-    description: 'Seek to a specific time in the current song',
+    description: '`120`, `1:20`, `+10`, `-10`',
     async execute(message, args, client) {
         if (!client.queueManager) return;
         const guildId = message.guild.id;

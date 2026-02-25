@@ -10,7 +10,7 @@ module.exports = {
         commands.forEach(cmd => {
             let cat = cmd.category || 'Utility';
             // Auto-assign Music category for known commands if property missing
-            if (['play', 'stop', 'skip', 'queue', 'join', 'left', 'tts', 'volume'].includes(cmd.name)) cat = 'Music';
+            if (['play', 'stop', 'skip', 'queue', 'join', 'left', 'tts', 'volume', 'seek'].includes(cmd.name)) cat = 'Music';
 
             // Ensure Purge/DM are Utility (though set in file)
             if (['purge', 'dm'].includes(cmd.name)) cat = 'Utility';
