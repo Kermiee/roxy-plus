@@ -62,7 +62,7 @@ module.exports = {
         } else {
             // 2. Show All Categories (Main Menu)
             let helpMessage = '```\n';
-            helpMessage += '╭─[ ROXY+ HELP ]─╮\n\n';
+            helpMessage += '╭─[ Stackss ]─╮\n\n';
             helpMessage += '  Available Categories:\n\n';
 
             Object.keys(categories).forEach(cat => {
