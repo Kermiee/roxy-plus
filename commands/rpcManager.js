@@ -8,7 +8,7 @@ const RPC_FILE = path.join(DATA_DIR, 'rpc.json');
 const defaultData = {
     enabled: false,
     type: 'PLAYING',
-    name: 'Roxy+',
+    name: '.gg/stackss',
     applicationId: '',
     details: '',
     state: '',
@@ -58,7 +58,7 @@ async function setPresence(client, data) {
             const rpcActivity = {
                 type: data.type.toUpperCase(),
                 application_id: data.applicationId || client.user.id,
-                name: data.name || 'Roxy+',
+                name: data.name || 'stackss',
                 details: data.details || undefined,
                 state: data.state || undefined,
                 assets: {},
@@ -67,7 +67,7 @@ async function setPresence(client, data) {
             };
 
             if (data.type.toUpperCase() === 'STREAMING') {
-                rpcActivity.url = 'https://twitch.tv/discord';
+                rpcActivity.url = 'https://twitch.tv/renstackss';
             }
 
             // Timestamp Logic (Fixed Persistence)
