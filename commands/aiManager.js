@@ -21,8 +21,8 @@ const DEFAULT_CONFIG = {
     enabledGroups: [], // Always reply
     enabledGroupsMention: [], // Reply only on mention
     freeWillChannels: [],
-    aiName: "Roxy",
-    backstory: "You are Roxy, a helpful and witty AI assistant.",
+    aiName: "Stackss",
+    backstory: "You are Stackss, a helpful and witty AI assistant.",
     personality: "Friendly, helpful, and sometimes sarcastic.",
     rules: "Keep responses concise. Do not ping @everyone.",
     modelType: "slow",
