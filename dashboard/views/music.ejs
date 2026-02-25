@@ -236,6 +236,18 @@
             fill: currentColor;
         }
 
+        .btn-seek {
+            background: rgba(155, 89, 182, 0.1);
+            color: #9b59b6;
+            border: 1px solid rgba(155, 89, 182, 0.3);
+        }
+
+        .btn-seek:hover {
+            background: #9b59b6;
+            color: white;
+            box-shadow: 0 5px 15px rgba(155, 89, 182, 0.4);
+        }
+
         .btn-prev {
             background: rgba(52, 152, 219, 0.1);
             color: #3498db;
@@ -465,6 +477,22 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        @media(max-width: 480px) {
+            .controls {
+                gap: 10px;
+            }
+
+            .btn-control {
+                width: 50px;
+                height: 50px;
+            }
+
+            .btn-control svg {
+                width: 20px;
+                height: 20px;
+            }
+        }
     </style>
 </head>
 
@@ -539,6 +567,11 @@
                 </div>
 
                 <div class="controls">
+                    <button class="btn-control btn-seek" onclick="seek(-10000)" title="Rewind 10s">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z" />
+                        </svg>
+                    </button>
                     <button class="btn-control btn-prev" onclick="prevSong()" title="Previous"><svg viewBox="0 0 24 24">
                             <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z" />
                         </svg></button>
@@ -548,15 +581,24 @@
                     <button class="btn-control btn-skip" onclick="skipSong()" title="Skip"><svg viewBox="0 0 24 24">
                             <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
                         </svg></button>
-                    <button class="btn-control btn-loop" id="btnLoop" onclick="toggleLoop()" title="Loop: None"
-                        style="background: rgba(138, 43, 226, 0.1); color: #8a2be2; border: 1px solid rgba(138, 43, 226, 0.3);">
+                    <button class="btn-control btn-seek" onclick="seek(10000)" title="Forward 10s">
                         <svg viewBox="0 0 24 24">
-                            <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z" opacity="0.5" />
+                            <path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z" />
                         </svg>
                     </button>
                 </div>
+
+                <div class="extra-controls" style="margin-bottom: 20px;">
+                    <button class="btn-action" id="btnLoop" onclick="toggleLoop()" title="Loop: None"
+                        style="background: rgba(138, 43, 226, 0.1); color: #8a2be2; border: 1px solid rgba(138, 43, 226, 0.3); display: flex; align-items: center; justify-content: center; width: 140px; border-radius: 30px;">
+                        <svg viewBox="0 0 24 24" style="width:20px; height:20px; fill:currentColor; margin-right:5px;">
+                            <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z" opacity="0.5" />
+                        </svg> Loop: None
+                    </button>
+                </div>
+
                 <div id="loopStatusMsg"
-                    style="color: #a29bfe; font-size: 0.9rem; margin-top: -15px; margin-bottom: 20px; text-align: center; opacity: 0; transition: opacity 0.3s; font-weight: 500; height: 20px;">
+                    style="color: #a29bfe; font-size: 0.9rem; margin-top: -10px; margin-bottom: 20px; text-align: center; opacity: 0; transition: opacity 0.3s; font-weight: 500; height: 20px;">
                 </div>
 
                 <!-- Extra Controls Removed as per request -->
@@ -663,9 +705,9 @@
                 document.getElementById('totalTime').innerText = formatTime(data.duration);
 
                 const btnLoop = document.getElementById('btnLoop');
-                const svgRepeat = '<svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>';
-                const svgRepeatOne = '<svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4zm-4-2V9h-1l-2 1v1h1.5v4H13z"/></svg>';
-                const svgNone = '<svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z" opacity="0.5"/></svg>';
+                const svgRepeat = '<svg viewBox="0 0 24 24" style="width:20px; height:20px; fill:currentColor; margin-right:5px;"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg> Loop: Queue';
+                const svgRepeatOne = '<svg viewBox="0 0 24 24" style="width:20px; height:20px; fill:currentColor; margin-right:5px;"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4zm-4-2V9h-1l-2 1v1h1.5v4H13z"/></svg> Loop: Track';
+                const svgNone = '<svg viewBox="0 0 24 24" style="width:20px; height:20px; fill:currentColor; margin-right:5px;"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z" opacity="0.5"/></svg> Loop: None';
 
                 if (data.loop === 'track') {
                     btnLoop.innerHTML = svgRepeatOne;
@@ -864,6 +906,18 @@
             async function skipSong() { await fetch('/api/music/skip', { method: 'POST' }); updateState(); }
             async function prevSong() { await fetch('/api/music/previous', { method: 'POST' }); updateState(); }
             async function stopMusic() { if (confirm('Stop music?')) await fetch('/api/music/stop', { method: 'POST' }); updateState(); }
+
+            async function seek(amount) {
+                if (!currentGuildId) return;
+                try {
+                    await fetch('/api/music/seek', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ guildId: currentGuildId, amount: amount })
+                    });
+                } catch (e) { }
+                updateState();
+            }
 
             async function toggleLoop() {
                 if (!currentGuildId) return;

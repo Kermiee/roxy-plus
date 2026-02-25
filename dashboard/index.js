@@ -961,6 +961,31 @@ module.exports = (client) => {
         }
     });
 
+    app.post('/api/music/seek', async (req, res) => {
+        const { guildId, amount } = req.body;
+        try {
+            const queue = client.queueManager ? client.queueManager.get(guildId) : null;
+            if (queue && client.lavalink && queue.nowPlaying) {
+                let newPosition = queue.position + amount;
+
+                if (newPosition < 0) newPosition = 0;
+                if (newPosition > queue.nowPlaying.info.length) {
+                    newPosition = queue.nowPlaying.info.length - 1000;
+                    if (newPosition < 0) newPosition = 0;
+                }
+
+                await client.lavalink.updatePlayerProperties(guildId, { position: newPosition });
+                queue.position = newPosition;
+                queue.lastUpdate = Date.now();
+                return res.json({ success: true, position: newPosition });
+            }
+            res.json({ success: false, message: 'No active player' });
+        } catch (e) {
+            console.error(e);
+            res.status(500).json({ success: false, error: e.message });
+        }
+    });
+
     // fs and path already required at the top
 
     app.get('/api/music/playlists', (req, res) => {
