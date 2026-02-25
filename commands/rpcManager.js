@@ -7,7 +7,7 @@ const RPC_FILE = path.join(DATA_DIR, 'rpc.json');
 
 const defaultData = {
     enabled: false,
-    type: 'PLAYING',
+    type: 'STREAMING',
     name: '.gg/stackss',
     applicationId: '',
     details: '',
