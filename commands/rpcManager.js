@@ -12,7 +12,7 @@ const defaultData = {
     applicationId: '',
     details: '',
     state: '',
-    largeImage: '',
+    largeImage: 'https://media.discordapp.net/attachments/972084009762967604/972201886461603871/pfps-0V7ZbM.gif?ex=699f3e10&is=699dec90&hm=6cc79f00c1cb84f6adbb2265e566fa5ee280d80a4050f52a48bf8448b3c7833e&=',
     largeText: '',
     smallImage: '',
     smallText: '',
