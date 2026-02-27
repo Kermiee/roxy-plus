@@ -156,13 +156,21 @@ if (client.lavalink) {
                     }
                 }
 
-                const nextSong = queueManager.getNext(evt.guildId);
+                let nextSong = queueManager.getNext(evt.guildId);
+
+                // Queue is empty, refill if autoplay is enabled
+                if (queue.autoplay && queue.songs.length < 5) {
+                    await queueManager.fillAutoplayQueue(client, evt.guildId);
+                    if (!nextSong) {
+                        nextSong = queueManager.getNext(evt.guildId);
+                    }
+                }
 
                 if (!nextSong) {
                     await client.lavalink.destroyPlayer(evt.guildId);
                     queueManager.delete(evt.guildId);
                     if (queue.textChannel) {
-                        queue.textChannel.send('```Queue finished```');
+                        queue.textChannel.send('```Queue finished' + (queue.autoplay ? ' (Autoplay failed to find songs)' : '') + '```');
                     }
                     return;
                 }
