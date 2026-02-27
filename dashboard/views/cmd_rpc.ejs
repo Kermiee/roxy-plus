@@ -273,18 +273,42 @@
                 </div>
 
                 <div class="section-card">
-                    <div class="section-title">Time Elapsed</div>
-                    <div class="form-grid">
+                    <div class="section-title">Time Details & Progress Bar</div>
+
+                    <div class="status-row" style="margin-bottom: 15px;">
+                        <span style="font-size: 1rem; color:#ccc;">Enable Progress Bar (Spotify Style)</span>
+                        <label class="switch">
+                            <input type="checkbox" id="enableProgressBar" onchange="toggleProgressBarOptions()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="form-grid" id="normalTimeGroup">
                         <div class="input-group">
-                            <label class="input-label">Start Time From Now</label>
+                            <label class="input-label" id="lblStartTime">Start Time From Now</label>
                             <input type="number" id="timeVal" class="input-field" placeholder="e.g. 5" min="0">
                         </div>
                         <div class="input-group">
-                            <label class="input-label">Unit</label>
+                            <label class="input-label" id="lblStartUnit">Unit</label>
                             <select id="timeUnit" class="input-field">
-                                <option value="minute">Minutes Ago</option>
-                                <option value="hour">Hours Ago</option>
-                                <option value="day">Days Ago</option>
+                                <option value="minute">Minutes</option>
+                                <option value="hour">Hours</option>
+                                <option value="day">Days</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-grid" id="endTimeGroup" style="display: none; margin-top: 15px;">
+                        <div class="input-group">
+                            <label class="input-label">Total Duration (End Time)</label>
+                            <input type="number" id="endVal" class="input-field" placeholder="e.g. 5" min="0">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Unit</label>
+                            <select id="endUnit" class="input-field">
+                                <option value="minute">Minutes</option>
+                                <option value="hour">Hours</option>
+                                <option value="day">Days</option>
                             </select>
                         </div>
                     </div>
@@ -359,7 +383,10 @@
                     document.getElementById('details').value = data.details || '';
                     document.getElementById('state').value = data.state || '';
 
-                    // Reverse Calculate Time
+                    const enableProgressBar = data.enableProgressBar || false;
+                    document.getElementById('enableProgressBar').checked = enableProgressBar;
+
+                    // Reverse Calculate Time (Start)
                     if (data.startTimestamp && data.startTimestamp > 0) {
                         const ms = data.startTimestamp;
                         if (ms >= 86400000 && ms % 86400000 === 0) {
@@ -369,7 +396,6 @@
                             document.getElementById('timeVal').value = ms / 3600000;
                             document.getElementById('timeUnit').value = 'hour';
                         } else if (ms >= 60000) {
-                            // Default fallback preference
                             document.getElementById('timeVal').value = Math.floor(ms / 60000);
                             document.getElementById('timeUnit').value = 'minute';
                         } else {
@@ -379,6 +405,28 @@
                     } else {
                         document.getElementById('timeUnit').value = 'none';
                     }
+
+                    // Reverse Calculate Time (End)
+                    if (data.endTimestamp && data.endTimestamp > 0) {
+                        const ms = data.endTimestamp;
+                        if (ms >= 86400000 && ms % 86400000 === 0) {
+                            document.getElementById('endVal').value = ms / 86400000;
+                            document.getElementById('endUnit').value = 'day';
+                        } else if (ms >= 3600000 && ms % 3600000 === 0) {
+                            document.getElementById('endVal').value = ms / 3600000;
+                            document.getElementById('endUnit').value = 'hour';
+                        } else if (ms >= 60000) {
+                            document.getElementById('endVal').value = Math.floor(ms / 60000);
+                            document.getElementById('endUnit').value = 'minute';
+                        } else {
+                            document.getElementById('endVal').value = '';
+                            document.getElementById('endUnit').value = 'none';
+                        }
+                    } else {
+                        document.getElementById('endUnit').value = 'none';
+                    }
+
+                    toggleProgressBarOptions(true);
 
                     document.getElementById('largeImage').value = data.largeImage || '';
                     document.getElementById('largeText').value = data.largeText || '';
@@ -411,7 +459,9 @@
                     details: document.getElementById('details').value,
                     state: document.getElementById('state').value,
 
-                    startTimestamp: calculateMs(),
+                    enableProgressBar: document.getElementById('enableProgressBar').checked,
+                    startTimestamp: calculateMs('timeVal', 'timeUnit'),
+                    endTimestamp: calculateMs('endVal', 'endUnit'),
 
                     largeImage: document.getElementById('largeImage').value,
                     largeText: document.getElementById('largeText').value,
@@ -458,9 +508,9 @@
                 }
             }
 
-            function calculateMs() {
-                const val = parseInt(document.getElementById('timeVal').value);
-                const unit = document.getElementById('timeUnit').value;
+            function calculateMs(valId, unitId) {
+                const val = parseInt(document.getElementById(valId).value);
+                const unit = document.getElementById(unitId).value;
 
                 if (!val || val < 0 || unit === 'none') return 0;
 
@@ -468,6 +518,20 @@
                 if (unit === 'hour') return val * 60 * 60 * 1000;
                 if (unit === 'day') return val * 24 * 60 * 60 * 1000;
                 return 0;
+            }
+
+            function toggleProgressBarOptions(isInit = false) {
+                const isEnabled = document.getElementById('enableProgressBar').checked;
+                const endGroup = document.getElementById('endTimeGroup');
+                const lblStart = document.getElementById('lblStartTime');
+
+                if (isEnabled) {
+                    endGroup.style.display = 'grid';
+                    lblStart.innerText = "Time Passed Already (Position)";
+                } else {
+                    endGroup.style.display = 'none';
+                    lblStart.innerText = "Start Time From Now";
+                }
             }
         </script>
 </body>

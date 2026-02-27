@@ -17,10 +17,11 @@ const defaultData = {
     smallImage: '',
     smallText: '',
     button1Text: '',
-    button1Url: '',
     button2Text: '',
     button2Url: '',
-    startTimestamp: 0
+    enableProgressBar: false,
+    startTimestamp: 0,
+    endTimestamp: 0
 };
 
 function loadData() {
@@ -36,12 +37,25 @@ function saveData(data) {
 
     // Calculate Absolute Epoch for Timer Persistence
     // This anchors the "Elapsed" timer so it doesn't reset on bot restarts
-    const offset = parseInt(data.startTimestamp);
-    if (!isNaN(offset) && offset > 0) {
-        // Current Time - User's Offset (e.g. 21 hours) = The Timestamp when it "Started"
-        data.epochTimestamp = Date.now() - offset;
+    const startOffset = parseInt(data.startTimestamp);
+    const endOffset = parseInt(data.endTimestamp);
+
+    if (data.enableProgressBar && !isNaN(endOffset) && endOffset > 0) {
+        // If Progress bar is enabled, 'startOffset' means time passed ALREADY
+        // and 'endOffset' means total duration of the track/bar
+        // Start Time = Date.now() - startOffset
+        // End Time = Date.now() + (endOffset - startOffset)
+        const realStart = Date.now() - (isNaN(startOffset) ? 0 : startOffset);
+        data.epochTimestamp = realStart;
+        data.epochEndTimestamp = realStart + endOffset;
     } else {
-        delete data.epochTimestamp; // Remove if invalid/zero
+        delete data.epochEndTimestamp;
+        if (!isNaN(startOffset) && startOffset > 0) {
+            // Standard elapsed timer
+            data.epochTimestamp = Date.now() - startOffset;
+        } else {
+            delete data.epochTimestamp;
+        }
     }
 
     fs.writeFileSync(RPC_FILE, JSON.stringify(data, null, 2));
@@ -71,8 +85,14 @@ async function setPresence(client, data) {
             }
 
             // Timestamp Logic (Fixed Persistence)
-            // Use the saved Epoch timestamp if available, otherwise fallback (legacy behavior)
-            if (data.epochTimestamp && data.epochTimestamp > 0) {
+            if (data.enableProgressBar && data.epochEndTimestamp > 0) {
+                // Progress Bar mode (requires both Start and End)
+                rpcActivity.timestamps = {
+                    start: data.epochTimestamp || Date.now(),
+                    end: data.epochEndTimestamp
+                };
+            } else if (data.epochTimestamp && data.epochTimestamp > 0) {
+                // Elapsed mode
                 rpcActivity.timestamps = { start: data.epochTimestamp };
             } else if (data.startTimestamp > 0) {
                 // Fallback for old configs: Calculate temporary epoch
