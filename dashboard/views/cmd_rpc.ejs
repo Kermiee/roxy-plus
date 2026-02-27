@@ -21,6 +21,46 @@
             opacity: 0;
         }
 
+        /* Platform Selection styles */
+        .platform-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .platform-btn {
+            background: #050508;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+            color: #ccc;
+            font-weight: 600;
+        }
+
+        .platform-btn img {
+            width: 24px;
+            height: 24px;
+        }
+
+        .platform-btn:hover {
+            border-color: rgba(138, 43, 226, 0.5);
+            background: rgba(138, 43, 226, 0.05);
+        }
+
+        .platform-btn.active {
+            border-color: #8a2be2;
+            background: rgba(138, 43, 226, 0.1);
+            color: #fff;
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.2);
+        }
+
         .page-loaded .rpc-container {
             display: block;
             animation: fadeIn 0.5s forwards;
@@ -53,6 +93,28 @@
             padding: 30px;
             margin-bottom: 25px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes neonPulse {
+            0% {
+                box-shadow: 0 0 5px rgba(138, 43, 226, 0.5), inset 0 0 5px rgba(138, 43, 226, 0.2);
+                border-color: rgba(138, 43, 226, 0.5);
+            }
+
+            50% {
+                box-shadow: 0 0 20px rgba(138, 43, 226, 1), inset 0 0 10px rgba(138, 43, 226, 0.5);
+                border-color: rgba(184, 125, 248, 1);
+            }
+
+            100% {
+                box-shadow: 0 0 5px rgba(138, 43, 226, 0.5), inset 0 0 5px rgba(138, 43, 226, 0.2);
+                border-color: rgba(138, 43, 226, 0.5);
+            }
+        }
+
+        .neon-card {
+            border: 2px solid #8a2be2 !important;
+            animation: neonPulse 2s infinite alternate;
         }
 
         .section-title {
@@ -197,7 +259,9 @@
         }
 
         @media(max-width: 768px) {
-            .form-grid {
+
+            .form-grid,
+            .platform-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -314,6 +378,35 @@
                     </div>
                 </div>
 
+                <div class="section-card neon-card">
+                    <div class="section-title">Spoofing (Application Override)</div>
+                    <div class="status-row" style="margin-bottom: 5px;">
+                        <span style="font-size: 1rem; color:#ccc;">Enable Spoofing</span>
+                        <label class="switch">
+                            <input type="checkbox" id="spoofEnabled" onchange="toggleSpoofing()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <p style="color: #666; font-size: 0.85rem; margin-bottom: 15px; margin-top:0;">Enabling this will
+                        override the Application ID above with official app IDs to show their icons.</p>
+
+                    <div id="spoofOptionContainer" style="opacity: 0.5; pointer-events: none; transition: 0.3s;">
+                        <input type="hidden" id="spoofType" value="none">
+                        <div class="platform-grid">
+                            <div class="platform-btn" id="btnCrunchyroll" onclick="selectSpoof('crunchyroll')">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Crunchyroll_Logo.png"
+                                    alt="CR">
+                                Crunchyroll
+                            </div>
+                            <div class="platform-btn" id="btnPlaystation" onclick="selectSpoof('playstation')">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Playstation_logo_colour.svg"
+                                    alt="PS">
+                                PlayStation 5
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="section-card">
                     <div class="section-title">Images (Assets)</div>
                     <div class="form-grid">
@@ -382,6 +475,11 @@
                     document.getElementById('applicationId').value = data.applicationId || '';
                     document.getElementById('details').value = data.details || '';
                     document.getElementById('state').value = data.state || '';
+
+                    const spoofEnabled = data.spoofEnabled || false;
+                    document.getElementById('spoofEnabled').checked = spoofEnabled;
+                    document.getElementById('spoofType').value = data.spoofType || 'none';
+                    toggleSpoofing(); // Initialize spoof UI
 
                     const enableProgressBar = data.enableProgressBar || false;
                     document.getElementById('enableProgressBar').checked = enableProgressBar;
@@ -459,6 +557,9 @@
                     details: document.getElementById('details').value,
                     state: document.getElementById('state').value,
 
+                    spoofEnabled: document.getElementById('spoofEnabled').checked,
+                    spoofType: document.getElementById('spoofType').value,
+
                     enableProgressBar: document.getElementById('enableProgressBar').checked,
                     startTimestamp: calculateMs('timeVal', 'timeUnit'),
                     endTimestamp: calculateMs('endVal', 'endUnit'),
@@ -531,6 +632,42 @@
                 } else {
                     endGroup.style.display = 'none';
                     lblStart.innerText = "Start Time From Now";
+                }
+            }
+
+            function toggleSpoofing() {
+                const isEnabled = document.getElementById('spoofEnabled').checked;
+                const container = document.getElementById('spoofOptionContainer');
+                const appIdField = document.getElementById('applicationId');
+
+                if (isEnabled) {
+                    container.style.opacity = '1';
+                    container.style.pointerEvents = 'auto';
+                    appIdField.disabled = true;
+                    appIdField.style.opacity = '0.5';
+                    // Auto-select first if none selected
+                    if (document.getElementById('spoofType').value === 'none') {
+                        selectSpoof('crunchyroll');
+                    } else {
+                        selectSpoof(document.getElementById('spoofType').value);
+                    }
+                } else {
+                    container.style.opacity = '0.5';
+                    container.style.pointerEvents = 'none';
+                    appIdField.disabled = false;
+                    appIdField.style.opacity = '1';
+                }
+            }
+
+            function selectSpoof(type) {
+                document.getElementById('spoofType').value = type;
+                document.getElementById('btnCrunchyroll').classList.remove('active');
+                document.getElementById('btnPlaystation').classList.remove('active');
+
+                if (type === 'crunchyroll') {
+                    document.getElementById('btnCrunchyroll').classList.add('active');
+                } else if (type === 'playstation') {
+                    document.getElementById('btnPlaystation').classList.add('active');
                 }
             }
         </script>
