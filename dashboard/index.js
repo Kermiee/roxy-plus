@@ -771,6 +771,7 @@ module.exports = (client) => {
             duration: 0,
             volume: 100,
             loop: 'none',
+            autoplay: false,
             queue: [],
             queueCount: 0
         };
@@ -788,6 +789,7 @@ module.exports = (client) => {
                 musicData.guildIcon = guild ? guild.iconURL({ dynamic: true, size: 128 }) : null;
                 musicData.volume = queue.volume !== undefined ? queue.volume : 100;
                 musicData.loop = queue.loop || 'none';
+                musicData.autoplay = queue.autoplay || false;
 
                 // Try to find channel name
                 // queue doesn't store channelId? Lavalink might. 
@@ -888,6 +890,7 @@ module.exports = (client) => {
             const queues = client.queueManager ? client.queueManager.getAll() : new Map();
             for (const [guildId, queue] of queues) {
                 if (queue.nowPlaying) {
+                    if (queue.autoplay && queue.songs.length < 5) await client.queueManager.fillAutoplayQueue(client, guildId);
                     const nextSong = client.queueManager.getNext(guildId);
 
                     if (!nextSong) {
@@ -953,6 +956,24 @@ module.exports = (client) => {
                 else if (queue.loop === 'track') queue.loop = 'queue';
                 else if (queue.loop === 'queue') queue.loop = 'none';
                 return res.json({ success: true, loop: queue.loop });
+            }
+            res.json({ success: false, message: 'No active player' });
+        } catch (e) {
+            console.error(e);
+            res.status(500).json({ success: false, error: e.message });
+        }
+    });
+
+    app.post('/api/music/autoplay', async (req, res) => {
+        const { guildId } = req.body;
+        try {
+            const queue = client.queueManager ? client.queueManager.get(guildId) : null;
+            if (queue && client.lavalink) {
+                queue.autoplay = !queue.autoplay;
+                if (queue.autoplay) {
+                    await client.queueManager.fillAutoplayQueue(client, guildId);
+                }
+                return res.json({ success: true, autoplay: queue.autoplay });
             }
             res.json({ success: false, message: 'No active player' });
         } catch (e) {
@@ -1050,6 +1071,10 @@ module.exports = (client) => {
                         filters: queue.filters
                     });
                 }
+            }
+
+            if (queue && queue.autoplay && queue.songs.length < 5) {
+                await client.queueManager.fillAutoplayQueue(client, guildId);
             }
 
             res.json({ success: true, added });

@@ -41,6 +41,11 @@ async function playLogic(client, guildId, query) {
 
     if (queue.nowPlaying) {
         client.queueManager.addSong(guildId, track);
+
+        if (queue.autoplay && queue.songs.length < 5) {
+            client.queueManager.fillAutoplayQueue(client, guildId);
+        }
+
         return { success: true, type: 'queue', track };
     } else {
         // Assume bot is joined. Or we fail if no voiceState.
@@ -57,6 +62,10 @@ async function playLogic(client, guildId, query) {
             volume: queue.volume,
             filters: queue.filters
         });
+
+        if (queue.autoplay && queue.songs.length < 5) {
+            client.queueManager.fillAutoplayQueue(client, guildId);
+        }
 
         return { success: true, type: 'play', track };
     }

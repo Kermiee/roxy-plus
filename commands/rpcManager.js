@@ -17,10 +17,13 @@ const defaultData = {
     smallImage: '',
     smallText: '',
     button1Text: '',
-    button1Url: '',
     button2Text: '',
     button2Url: '',
-    startTimestamp: 0
+    enableProgressBar: false,
+    startTimestamp: 0,
+    endTimestamp: 0,
+    spoofEnabled: false,
+    spoofType: 'none'
 };
 
 function loadData() {
@@ -34,14 +37,20 @@ function loadData() {
 function saveData(data) {
     if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 
-    // Calculate Absolute Epoch for Timer Persistence
-    // This anchors the "Elapsed" timer so it doesn't reset on bot restarts
-    const offset = parseInt(data.startTimestamp);
-    if (!isNaN(offset) && offset > 0) {
-        // Current Time - User's Offset (e.g. 21 hours) = The Timestamp when it "Started"
-        data.epochTimestamp = Date.now() - offset;
+    const startOffset = parseInt(data.startTimestamp);
+    const endOffset = parseInt(data.endTimestamp);
+
+    if (data.enableProgressBar && !isNaN(endOffset) && endOffset > 0) {
+        const realStart = Date.now() - (isNaN(startOffset) ? 0 : startOffset);
+        data.epochTimestamp = realStart;
+        data.epochEndTimestamp = realStart + endOffset;
     } else {
-        delete data.epochTimestamp; // Remove if invalid/zero
+        delete data.epochEndTimestamp;
+        if (!isNaN(startOffset) && startOffset > 0) {
+            data.epochTimestamp = Date.now() - startOffset;
+        } else {
+            delete data.epochTimestamp;
+        }
     }
 
     fs.writeFileSync(RPC_FILE, JSON.stringify(data, null, 2));
@@ -53,7 +62,6 @@ async function setPresence(client, data) {
     try {
         const activities = [];
 
-        // 1. RPC Activity
         if (data.enabled) {
             const rpcActivity = {
                 type: data.type.toUpperCase(),
@@ -70,12 +78,14 @@ async function setPresence(client, data) {
                 rpcActivity.url = 'https://twitch.tv/renstackss';
             }
 
-            // Timestamp Logic (Fixed Persistence)
-            // Use the saved Epoch timestamp if available, otherwise fallback (legacy behavior)
-            if (data.epochTimestamp && data.epochTimestamp > 0) {
+            if (data.enableProgressBar && data.epochEndTimestamp > 0) {
+                rpcActivity.timestamps = {
+                    start: data.epochTimestamp || Date.now(),
+                    end: data.epochEndTimestamp
+                };
+            } else if (data.epochTimestamp && data.epochTimestamp > 0) {
                 rpcActivity.timestamps = { start: data.epochTimestamp };
             } else if (data.startTimestamp > 0) {
-                // Fallback for old configs: Calculate temporary epoch
                 rpcActivity.timestamps = { start: Date.now() - parseInt(data.startTimestamp) };
             }
 
@@ -102,6 +112,17 @@ async function setPresence(client, data) {
                 delete rpcActivity.buttons;
                 delete rpcActivity.metadata;
             }
+
+            // --- SPOOFING LOGIC ---
+            if (data.spoofEnabled) {
+                if (data.spoofType === 'crunchyroll') {
+                    rpcActivity.application_id = '981509069309354054';
+                } else if (data.spoofType === 'playstation') {
+                    rpcActivity.application_id = '1008890872156405890';
+                    rpcActivity.platform = 'ps5'; // Specifically inject the platform for PS5
+                }
+            }
+
             activities.push(rpcActivity);
         }
 

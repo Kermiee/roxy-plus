@@ -16,6 +16,11 @@ module.exports = {
 
         try {
             const skippedSong = queue.nowPlaying;
+
+            if (queue.autoplay && queue.songs.length < 5) {
+                await client.queueManager.fillAutoplayQueue(client, message.guild.id);
+            }
+
             const nextSong = client.queueManager.getNext(message.guild.id);
 
             if (!nextSong) {

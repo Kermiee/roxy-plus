@@ -98,9 +98,12 @@
 
         /* Playing State */
         .guild-badge {
-            position: absolute;
-            top: 20px;
-            left: 20px;
+            position: relative;
+            margin-top: -10px;
+            margin-bottom: 25px;
+            align-self: flex-start;
+            max-width: 100%;
+            box-sizing: border-box;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -130,8 +133,8 @@
         }
 
         .art-wrapper {
-            width: 280px;
-            height: 280px;
+            width: 260px;
+            height: 260px;
             margin-bottom: 30px;
             position: relative;
         }
@@ -478,9 +481,27 @@
             }
         }
 
-        @media(max-width: 480px) {
+        @media(max-width: 600px) {
+            .music-container {
+                padding: 10px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .card {
+                padding: 20px;
+                min-height: auto;
+            }
+
+            .art-wrapper {
+                width: 200px;
+                height: 200px;
+            }
+
             .controls {
                 gap: 10px;
+                flex-wrap: wrap;
+                justify-content: center;
             }
 
             .btn-control {
@@ -488,9 +509,43 @@
                 height: 50px;
             }
 
+            .extra-controls {
+                flex-wrap: wrap;
+            }
+
+            .extra-controls .btn-action {
+                flex: 1 !important;
+                min-width: 130px !important;
+                width: 100% !important;
+            }
+        }
+
+        @media(max-width: 480px) {
+            .controls {
+                gap: 5px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .btn-control {
+                width: 45px;
+                height: 45px;
+            }
+
             .btn-control svg {
-                width: 20px;
-                height: 20px;
+                width: 18px;
+                height: 18px;
+            }
+
+            .extra-controls {
+                flex-wrap: wrap;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .extra-controls .btn-action {
+                width: 100% !important;
+                max-width: 100% !important;
             }
         }
     </style>
@@ -555,7 +610,7 @@
                 </div>
 
                 <div class="volume-container"
-                    style="display: flex; align-items: center; gap: 15px; margin-bottom: 25px; width: 100%; max-width: 350px; background: rgba(255,255,255,0.05); padding: 10px 20px; border-radius: 30px;">
+                    style="box-sizing: border-box; display: flex; align-items: center; gap: 15px; margin-bottom: 25px; width: 100%; max-width: 350px; background: rgba(255,255,255,0.05); padding: 10px 20px; border-radius: 30px;">
                     <svg viewBox="0 0 24 24" style="width:24px; height:24px; fill:#ccc;">
                         <path
                             d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
@@ -588,12 +643,21 @@
                     </button>
                 </div>
 
-                <div class="extra-controls" style="margin-bottom: 20px;">
+                <div class="extra-controls"
+                    style="margin-bottom: 20px; display: flex; gap: 10px; justify-content: center;">
                     <button class="btn-action" id="btnLoop" onclick="toggleLoop()" title="Loop: None"
                         style="background: rgba(138, 43, 226, 0.1); color: #8a2be2; border: 1px solid rgba(138, 43, 226, 0.3); display: flex; align-items: center; justify-content: center; width: 140px; border-radius: 30px;">
                         <svg viewBox="0 0 24 24" style="width:20px; height:20px; fill:currentColor; margin-right:5px;">
                             <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z" opacity="0.5" />
                         </svg> Loop: None
+                    </button>
+                    <button class="btn-action" id="btnAutoplay" onclick="toggleAutoplay()" title="Autoplay: Off"
+                        style="background: rgba(138, 43, 226, 0.1); color: #8a2be2; border: 1px solid rgba(138, 43, 226, 0.3); display: flex; align-items: center; justify-content: center; width: 140px; border-radius: 30px;">
+                        <svg viewBox="0 0 24 24" style="width:20px; height:20px; fill:currentColor; margin-right:5px;">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"
+                                opacity="0.5" />
+                        </svg> Autoplay: Off
                     </button>
                 </div>
 
@@ -727,6 +791,24 @@
                     btnLoop.style.background = 'rgba(138, 43, 226, 0.1)';
                     btnLoop.style.color = '#8a2be2';
                     btnLoop.style.borderColor = 'rgba(138, 43, 226, 0.3)';
+                }
+
+                const btnAutoplay = document.getElementById('btnAutoplay');
+                const svgApOn = '<svg viewBox="0 0 24 24" style="width:20px; height:20px; fill:currentColor; margin-right:5px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg> Autoplay: On';
+                const svgApOff = '<svg viewBox="0 0 24 24" style="width:20px; height:20px; fill:currentColor; margin-right:5px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" opacity="0.5"/></svg> Autoplay: Off';
+
+                if (data.autoplay) {
+                    btnAutoplay.innerHTML = svgApOn;
+                    btnAutoplay.title = 'Autoplay: On';
+                    btnAutoplay.style.background = 'rgba(255, 159, 67, 0.2)';
+                    btnAutoplay.style.color = '#ff9f43';
+                    btnAutoplay.style.borderColor = 'rgba(255, 159, 67, 0.4)';
+                } else {
+                    btnAutoplay.innerHTML = svgApOff;
+                    btnAutoplay.title = 'Autoplay: Off';
+                    btnAutoplay.style.background = 'rgba(138, 43, 226, 0.1)';
+                    btnAutoplay.style.color = '#8a2be2';
+                    btnAutoplay.style.borderColor = 'rgba(138, 43, 226, 0.3)';
                 }
 
                 if (!isDraggingVolume) {
@@ -930,6 +1012,22 @@
                     const data = await res.json();
                     if (data.success) {
                         showLoopMessage(data.loop);
+                    }
+                } catch (e) { }
+                updateState();
+            }
+
+            async function toggleAutoplay() {
+                if (!currentGuildId) return;
+                try {
+                    const res = await fetch('/api/music/autoplay', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ guildId: currentGuildId })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showLoopMessage(data.autoplay ? 'autoplay ON' : 'autoplay OFF');
                     }
                 } catch (e) { }
                 updateState();
